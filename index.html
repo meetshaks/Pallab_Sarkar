@@ -281,6 +281,15 @@
             color: var(--bg); 
             border-color: var(--text); 
         }
+        .theme-icon-wrap { position: relative; width: 18px; height: 18px; }
+        .theme-icon-wrap svg {
+            position: absolute; inset: 0;
+            transition: opacity 0.35s var(--ease-out), transform 0.5s var(--ease-out);
+        }
+        .icon-sun { opacity: 1; transform: rotate(0deg) scale(1); }
+        .icon-moon { opacity: 0; transform: rotate(-90deg) scale(0.5); }
+        [data-theme="dark"] .icon-sun { opacity: 0; transform: rotate(90deg) scale(0.5); }
+        [data-theme="dark"] .icon-moon { opacity: 1; transform: rotate(0deg) scale(1); }
 
         .btn-primary {
             background: var(--text); color: var(--bg);
@@ -667,6 +676,99 @@
         .project-year { font-size: 0.9rem; color: var(--text-muted); font-variant-numeric: tabular-nums; }
 
         /* =========================================
+           WORK — INTERACTIVE ORBIT GALLERY
+        ========================================= */
+        .orbit-intro { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-bottom: 2rem; flex-wrap: wrap; }
+        .orbit-intro-label { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.14em; color: var(--text-muted); }
+        .orbit-reset {
+            border: 1px solid var(--border); border-radius: 999px; padding: 0.4rem 1rem;
+            font-size: 0.78rem; color: var(--text-muted); transition: 0.2s ease; background: var(--card);
+        }
+        .orbit-reset:hover { color: var(--text); border-color: var(--accent); }
+
+        #orbitStage {
+            position: relative; width: 100%; height: 560px; max-height: 74vh;
+            perspective: 1600px; margin-bottom: 2rem;
+        }
+        #orbitStage::after {
+            content: ''; position: absolute; inset: 0;
+            background: radial-gradient(ellipse 75% 70% at 50% 50%, transparent 55%, var(--bg) 100%);
+            pointer-events: none; z-index: 4;
+        }
+        #orbitRing { position: absolute; inset: 0; transform-style: preserve-3d; }
+        #orbitTrack {
+            position: absolute; top: 50%; left: 50%; border-radius: 50%;
+            border: 1px solid var(--border); pointer-events: none;
+        }
+        .orbit-card {
+            position: absolute; top: 50%; left: 50%;
+            width: 150px; height: 190px;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; will-change: transform;
+            backface-visibility: hidden; transform-style: preserve-3d;
+        }
+        .orbit-card-visual {
+            width: 88px; height: 120px; border-radius: 8px; overflow: hidden;
+            background-size: cover; background-position: center;
+            box-shadow: 0 12px 28px rgba(0,0,0,.18);
+            border: 1px solid var(--border);
+            transition: box-shadow 0.25s ease, opacity 0.25s ease;
+            position: relative;
+        }
+        [data-theme="dark"] .orbit-card-visual { box-shadow: 0 12px 28px rgba(0,0,0,.5); }
+        .orbit-card-visual::after {
+            content: ''; position: absolute; inset: 0;
+            background: linear-gradient(180deg, rgba(0,0,0,0) 50%, rgba(0,0,0,.4) 100%);
+        }
+        .orbit-card:hover .orbit-card-visual, .orbit-card.is-active .orbit-card-visual {
+            opacity: 1 !important;
+            box-shadow: 0 18px 40px rgba(74,93,78,.28), 0 0 0 1px var(--accent);
+        }
+        .orbit-card.dim .orbit-card-visual { opacity: .14 !important; }
+        .orbit-card.dim { pointer-events: none; }
+
+        #orbitCenterPanel {
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%);
+            width: min(360px, 34vw); text-align: center; pointer-events: none;
+            z-index: 5; opacity: 0; transition: opacity 0.3s ease;
+        }
+        #orbitCenterPanel.is-visible { opacity: 1; }
+        #orbitCenterHint { font-size: 0.8rem; color: var(--text-muted); letter-spacing: 0.04em; transition: opacity 0.3s ease; pointer-events: none; }
+        #orbitCenterTitle { font-family: var(--serif); font-size: clamp(1.35rem, 2.4vw, 2rem); line-height: 1.15; letter-spacing: -0.015em; color: var(--text); }
+        #orbitCenterCat { color: var(--accent); font-size: 0.72rem; letter-spacing: 0.14em; text-transform: uppercase; margin-top: 0.4rem; }
+        #orbitCenterCat::before { content: '— '; color: var(--text-muted); }
+        #orbitCenterPreview {
+            margin-top: 1.2rem; width: 100%; aspect-ratio: 16/10; border-radius: 12px;
+            background-size: cover; background-position: center;
+            box-shadow: 0 25px 60px rgba(0,0,0,.18), 0 0 0 1px var(--border);
+            border: 1px solid var(--border);
+            transition: opacity 0.35s ease, transform 0.35s ease; transform: translateY(4px);
+        }
+        [data-theme="dark"] #orbitCenterPreview { box-shadow: 0 25px 60px rgba(0,0,0,.55), 0 0 0 1px var(--border); }
+        #orbitCenterPanel.is-visible #orbitCenterPreview { transform: translateY(0); }
+
+        .orbit-cat-label {
+            position: absolute; font-size: 0.78rem; color: var(--text-muted); white-space: nowrap;
+            cursor: pointer; padding: 3px 6px; letter-spacing: 0.02em; transition: color 0.25s ease;
+            display: flex; align-items: center; gap: 6px;
+        }
+        .orbit-cat-label::before { content: ''; width: 4px; height: 4px; border-radius: 50%; background: var(--text-muted); transition: background 0.25s ease, box-shadow 0.25s ease; }
+        .orbit-cat-label:hover, .orbit-cat-label.active { color: var(--text); }
+        .orbit-cat-label.active::before { background: var(--accent); box-shadow: 0 0 8px var(--accent); }
+        .orbit-cat-label .orbit-count { color: var(--accent); font-size: 0.68rem; margin-left: 2px; }
+        .orbit-cat-label .orbit-underline { position: absolute; left: 16px; right: 6px; bottom: 0; height: 1px; background: var(--accent); transform: scaleX(0); transform-origin: left; transition: transform 0.25s ease; }
+        .orbit-cat-label.active .orbit-underline { transform: scaleX(1); }
+
+        .orbit-footer-note { text-align: center; font-size: 0.78rem; color: var(--text-muted); margin-top: -1rem; margin-bottom: 3rem; }
+
+        @media (max-width: 900px) {
+            .orbit-cat-label { display: none; }
+            .orbit-card { width: 100px; height: 130px; }
+            .orbit-card-visual { width: 64px; height: 88px; }
+            #orbitStage { height: 440px; }
+        }
+
+        /* =========================================
            PROCESS
         ========================================= */
         .process-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4rem; }
@@ -926,6 +1028,11 @@
             line-height: 1.6;
             position: relative;
         }
+        .modal-project-image {
+            width: 100%; aspect-ratio: 16/9; border-radius: 12px; overflow: hidden;
+            margin-bottom: 2.5rem; background: var(--bg-alt);
+        }
+        .modal-project-image img { width: 100%; height: 100%; object-fit: cover; }
         .modal-body {
             padding: 4rem;
         }
@@ -1093,6 +1200,7 @@
             <a href="#about" data-section="about">About</a>
             <a href="#services" data-section="services">Services</a>
             <a href="#work" data-section="work">Work</a>
+            <a href="#gallery" data-section="gallery">Gallery</a>
             <a href="#process" data-section="process">Process</a>
             <a href="#contact" data-section="contact">Contact</a>
         </div>
@@ -1102,7 +1210,10 @@
                 <span>Available</span>
             </div>
             <button class="theme-toggle" id="themeToggle" aria-label="Toggle Dark Mode">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+                <span class="theme-icon-wrap">
+                    <svg class="icon-sun" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+                    <svg class="icon-moon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+                </span>
             </button>
             <a href="#contact" class="btn-primary">Let's Talk</a>
             <button class="menu-toggle" id="menuToggle" aria-label="Menu">
@@ -1117,6 +1228,7 @@
         <a href="#about" data-section="about">About</a>
         <a href="#services" data-section="services">Services</a>
         <a href="#work" data-section="work">Work</a>
+        <a href="#gallery" data-section="gallery">Gallery</a>
         <a href="#process" data-section="process">Process</a>
         <a href="#contact" data-section="contact">Contact</a>
     </div>
@@ -1326,6 +1438,7 @@
                 <h2 class="section-title">Recent obsessions.</h2>
                 <p class="section-desc">A curated selection from the last eighteen months.</p>
             </div>
+
             <div class="work-grid">
                 <article class="project-card reveal"><div class="project-img"><img src="https://picsum.photos/seed/nord/800/600" alt="Nørd Skincare" loading="lazy"></div><div class="project-meta"><div><span class="project-cat">Brand Identity</span><h3 class="project-title">Nørd Skincare</h3></div><span class="project-year">'26</span></div></article>
                 <article class="project-card reveal"><div class="project-img"><img src="https://picsum.photos/seed/ko/800/600" alt="Kō Matcha" loading="lazy"></div><div class="project-meta"><div><span class="project-cat">Packaging</span><h3 class="project-title">Kō Matcha Co.</h3></div><span class="project-year">'26</span></div></article>
@@ -1336,6 +1449,33 @@
                 <article class="project-card reveal"><div class="project-img"><img src="https://picsum.photos/seed/luma/800/600" alt="Luma Studios" loading="lazy"></div><div class="project-meta"><div><span class="project-cat">Branding</span><h3 class="project-title">Luma Studios</h3></div><span class="project-year">'25</span></div></article>
                 <article class="project-card reveal"><div class="project-img"><img src="https://picsum.photos/seed/fete/800/600" alt="Fête Festival" loading="lazy"></div><div class="project-meta"><div><span class="project-cat">Print</span><h3 class="project-title">Fête Festival Posters</h3></div><span class="project-year">'24</span></div></article>
             </div>
+        </div>
+    </section>
+
+    <!-- Gallery — interactive 3D orbit view of the same work -->
+    <section id="gallery">
+        <div class="container">
+            <div class="section-header reveal">
+                <span class="section-label">Gallery</span>
+                <h2 class="section-title">More from the studio.</h2>
+                <p class="section-desc">A rotating look at additional work — drag to explore, click any piece for details.</p>
+            </div>
+
+            <div class="orbit-intro">
+                <span class="orbit-intro-label">Explore interactively — hover or drag, click for details</span>
+                <button class="orbit-reset" id="orbitReset" type="button">Clear filter</button>
+            </div>
+            <div id="orbitStage">
+                <div id="orbitTrack"></div>
+                <div id="orbitRing"></div>
+                <div id="orbitCenterHint" style="position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);">Hover a project</div>
+                <div id="orbitCenterPanel">
+                    <div id="orbitCenterTitle">—</div>
+                    <div id="orbitCenterCat">—</div>
+                    <div id="orbitCenterPreview"></div>
+                </div>
+            </div>
+            <p class="orbit-footer-note"><span id="orbitVisibleCount">0</span> projects &nbsp;·&nbsp; drag to rotate · click to open</p>
         </div>
     </section>
 
@@ -1518,6 +1658,19 @@
         </div>
     </div>
 
+    <!-- Project Detail Modal (Gallery) -->
+    <div class="service-modal" id="projectModal">
+        <div class="modal-backdrop" id="projectModalBackdrop"></div>
+        <div class="modal-container">
+            <div class="modal-content">
+                <button class="modal-close" id="projectModalClose" aria-label="Close">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                </button>
+                <div id="projectModalContentInner"></div>
+            </div>
+        </div>
+    </div>
+
     <script>
         // =========================================
         // SERVICE DATA
@@ -1603,7 +1756,7 @@
         const sectionVisibility = new Map();
         
         // Ordered list of nav sections for priority-based active detection
-        const sectionOrder = ['home', 'about', 'capabilities', 'services', 'work', 'process', 'testimonials', 'background', 'faq', 'investment', 'contact'];
+        const sectionOrder = ['home', 'about', 'capabilities', 'services', 'work', 'gallery', 'process', 'testimonials', 'background', 'faq', 'investment', 'contact'];
 
         const activeNavObserver = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
@@ -1827,6 +1980,246 @@
             alert('Thanks for reaching out! Pallab will be in touch within 24 hours.');
             e.target.reset();
         });
+
+        // =========================================
+        // 11. GALLERY — 3D ORBIT VIEW (vanilla, no deps)
+        // Independent project list — edit the orbitProjects array below
+        // to change what shows here, separate from the Work grid.
+        // =========================================
+        (function initOrbitGallery() {
+            const stage = document.getElementById('orbitStage');
+            if (!stage) return;
+
+            // Edit this list to control what shows in the Gallery —
+            // it's independent from the "Selected Work" grid above.
+            const orbitProjects = [
+                { title: 'Nørd Skincare', cat: 'Brand Identity', img: 'https://picsum.photos/seed/nord/800/600' },
+                { title: 'Kō Matcha Co.', cat: 'Packaging', img: 'https://picsum.photos/seed/ko/800/600' },
+                { title: 'Verdant Architects', cat: 'Logo Design', img: 'https://picsum.photos/seed/verd/800/600' },
+                { title: 'Mnml Magazine #07', cat: 'Editorial', img: 'https://picsum.photos/seed/mnml/800/600' },
+                { title: 'Orbital Finance App', cat: 'Digital App', img: 'https://picsum.photos/seed/orb/800/600' },
+                { title: 'Sole & Stone Winery', cat: 'Packaging', img: 'https://picsum.photos/seed/sole/800/600' },
+                { title: 'Luma Studios', cat: 'Branding', img: 'https://picsum.photos/seed/luma/800/600' },
+                { title: 'Fête Festival Posters', cat: 'Print', img: 'https://picsum.photos/seed/fete/800/600' }
+            ];
+
+            const ring = document.getElementById('orbitRing');
+            const centerTitle = document.getElementById('orbitCenterTitle');
+            const centerCat = document.getElementById('orbitCenterCat');
+            const centerPreview = document.getElementById('orbitCenterPreview');
+            const centerPanel = document.getElementById('orbitCenterPanel');
+            const centerHint = document.getElementById('orbitCenterHint');
+            const visibleCount = document.getElementById('orbitVisibleCount');
+            const track = document.getElementById('orbitTrack');
+            const resetBtn = document.getElementById('orbitReset');
+
+            const catOrder = [...new Set(orbitProjects.map(p => p.cat))];
+            const catCounts = catOrder.reduce((acc, c) => {
+                acc[c] = orbitProjects.filter(p => p.cat === c).length; return acc;
+            }, {});
+
+            let activeCat = null;
+            let cards = [];
+            let labels = [];
+            let rotation = 0;
+            const AUTO_SPEED = 0.09;
+            let paused = false;
+            let inView = true;
+
+            let dragging = false, dragStartX = 0, dragStartRotation = 0;
+
+            function buildCards() {
+                const list = activeCat ? orbitProjects.filter(p => p.cat === activeCat) : orbitProjects;
+                visibleCount.textContent = list.length;
+                ring.innerHTML = '';
+                cards = [];
+                const n = list.length;
+                list.forEach((p, i) => {
+                    const baseAngle = (i / n) * Math.PI * 2 - Math.PI / 2;
+                    const el = document.createElement('div');
+                    el.className = 'orbit-card';
+                    const visual = document.createElement('div');
+                    visual.className = 'orbit-card-visual';
+                    visual.style.backgroundImage = `url('${p.img}')`;
+                    el.appendChild(visual);
+                    el.addEventListener('mouseenter', () => { showPreview(p); paused = true; });
+                    el.addEventListener('mouseleave', () => { hidePreview(); paused = false; });
+                    el.addEventListener('click', () => openProjectModal(p));
+                    ring.appendChild(el);
+                    cards.push({ el, baseAngle, p });
+                });
+                hidePreview();
+            }
+
+            function buildLabels() {
+                document.querySelectorAll('.orbit-cat-label').forEach(n => n.remove());
+                labels = [];
+                const n = catOrder.length;
+                catOrder.forEach((cat, i) => {
+                    const baseAngle = (i / n) * Math.PI * 2 - Math.PI / 2;
+                    const el = document.createElement('div');
+                    el.className = 'orbit-cat-label' + (activeCat === cat ? ' active' : '');
+                    el.innerHTML = `${cat} <span class="orbit-count">(${catCounts[cat]})</span><span class="orbit-underline"></span>`;
+                    el.addEventListener('click', () => {
+                        activeCat = activeCat === cat ? null : cat;
+                        buildLabels();
+                        buildCards();
+                    });
+                    stage.appendChild(el);
+                    labels.push({ el, baseAngle, cat });
+                });
+            }
+
+            function showPreview(p) {
+                centerTitle.textContent = p.title;
+                centerCat.textContent = p.cat;
+                centerPreview.style.backgroundImage = `url('${p.img}')`;
+                centerPanel.classList.add('is-visible');
+                centerHint.style.opacity = 0;
+            }
+            function hidePreview() {
+                centerPanel.classList.remove('is-visible');
+                centerHint.style.opacity = 1;
+            }
+
+            // Extra case-study copy, keyed by project title.
+            // Add an entry here whenever a real project replaces a placeholder above.
+            const projectExtra = {
+                'Nørd Skincare': { y: '2026', d: 'A full identity system for a Scandinavian skincare house built on restraint — custom typography, a muted Nordic palette, and a voice that speaks softly and sells loudly. Rolled out across 14 SKUs, e-commerce, and retail.', f: [['Role', 'Design & Art Direction'], ['Deliverables', 'Identity · Packaging · Guidelines · Web'], ['Impact', '14 SKUs across 6 markets']] },
+                'Kō Matcha Co.': { y: '2026', d: 'Ceremonial-grade matcha deserved packaging that behaves like a tea ceremony — quiet, precise, deliberate. A shelf system that tripled pickup rate in its first quarter.', f: [['Role', 'Packaging Design'], ['Deliverables', 'Label system · Box · Retail display'], ['Impact', '3× shelf pickup in Q1']] },
+                'Verdant Architects': { y: '2025', d: 'A single mark for a practice that builds with light. Distilled from forty explorations down to one inevitable gesture — a V that holds both a roofline and a leaf.', f: [['Role', 'Brand Mark'], ['Deliverables', 'Primary mark · Monogram · Brand sheet'], ['Impact', 'Trademarked in 3 classes']] },
+                'Mnml Magazine #07': { y: '2025', d: "Editorial design for issue #07 — 128 pages on the architecture of silence. A strict grid, one typeface family, and white space doing most of the talking.", f: [['Role', 'Editorial Design'], ['Deliverables', '128-page issue · Masthead system'], ['Impact', 'First print run sold out']] },
+                'Orbital Finance App': { y: '2025', d: 'A fintech app that makes complex treasury data feel calm. Research-driven UI, a token-based design system, and motion that explains rather than decorates.', f: [['Role', 'Product Design & Front-end'], ['Deliverables', 'Design system · iOS/Android UI'], ['Impact', '4.8★ App Store rating']] },
+                'Sole & Stone Winery': { y: '2025', d: 'A label system for a family winery in the Douro valley — letterpress texture, stone-paper stock, and typography that ages as well as the wine.', f: [['Role', 'Label Design'], ['Deliverables', '6-label system · Foil specs · Gift box'], ['Impact', 'Stocked by 120+ restaurants']] },
+                'Luma Studios': { y: '2025', d: 'Identity for a film studio that treats light as a material. The mark refracts across titles, posters, and a motion system that never repeats itself.', f: [['Role', 'Identity & Motion'], ['Deliverables', 'Identity · Title sequences · Toolkit'], ['Impact', '3 festival premieres']] },
+                'Fête Festival Posters': { y: '2024', d: 'Twelve silkscreen posters for a Lisbon music festival — loud color, loose type, and a system loose enough that no two posters match.', f: [['Role', 'Poster Series'], ['Deliverables', '12 silkscreen posters · Street kit'], ['Impact', 'Print run of 500 sold out']] }
+            };
+
+            const projectModal = document.getElementById('projectModal');
+            const projectModalInner = document.getElementById('projectModalContentInner');
+            const projectModalClose = document.getElementById('projectModalClose');
+            const projectModalBackdrop = document.getElementById('projectModalBackdrop');
+            const projectModalContentEl = projectModal?.querySelector('.modal-content');
+
+            function openProjectModal(p) {
+                const extra = projectExtra[p.title] || {
+                    y: '', d: 'Case study details coming soon.',
+                    f: [['Category', p.cat], ['Status', 'In progress'], ['Year', '—']]
+                };
+                const statsHTML = extra.f.map(([k, v]) => `<div class="modal-stat-item"><span class="modal-stat-value">${v}</span><span class="modal-stat-label">${k}</span></div>`).join('');
+
+                projectModalInner.innerHTML = `
+                    <div class="modal-hero">
+                        <span class="modal-num">/ ${extra.y || '—'}</span>
+                        <h2 class="modal-title">${p.title}</h2>
+                        <p class="modal-subtitle">${p.cat}</p>
+                    </div>
+                    <div class="modal-body">
+                        <div class="modal-project-image"><img src="${p.img}" alt="${p.title}" loading="lazy"></div>
+                        <div class="modal-stats">${statsHTML}</div>
+                        <div class="modal-section"><h3>Overview</h3><p>${extra.d}</p></div>
+                    </div>
+                    <div class="modal-cta">
+                        <div class="modal-cta-text"><h4>Like what you see?</h4><p>Get in touch about a project like this one.</p></div>
+                        <a href="#contact" class="btn-primary" id="projectModalCTA">Start a Project →</a>
+                    </div>
+                `;
+
+                if (projectModalContentEl) projectModalContentEl.scrollTop = 0;
+                projectModal.classList.add('active');
+                document.body.style.overflow = 'hidden';
+
+                const ctaBtn = document.getElementById('projectModalCTA');
+                if (ctaBtn) ctaBtn.addEventListener('click', closeProjectModal);
+            }
+
+            function closeProjectModal() {
+                projectModal.classList.remove('active');
+                document.body.style.overflow = '';
+                setTimeout(() => { projectModalInner.innerHTML = ''; }, 350);
+            }
+
+            projectModalClose?.addEventListener('click', closeProjectModal);
+            projectModalBackdrop?.addEventListener('click', closeProjectModal);
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape' && projectModal?.classList.contains('active')) closeProjectModal();
+            });
+
+            function positionCard(item) {
+                const rx = stage.clientWidth * 0.38;
+                const ry = stage.clientHeight * 0.34;
+                const angle = item.baseAngle + rotation;
+                const x = rx * Math.cos(angle);
+                const y = ry * Math.sin(angle);
+                const depth = Math.sin(angle);
+                const front = (depth + 1) / 2;
+                const scale = 0.75 + front * 0.4;
+                const MAX_TILT = 22;
+                const rotY = Math.sin(angle) * MAX_TILT;
+                item.el.style.transform = `translate(-50%,-50%) translate(${x}px, ${y}px) rotateY(${rotY.toFixed(1)}deg) scale(${scale})`;
+                const zBucket = Math.round(front * 20);
+                if (item.zBucket !== zBucket) { item.zBucket = zBucket; item.el.style.zIndex = zBucket * 10; }
+                const opBucket = Math.round((0.72 + front * 0.28) * 20) / 20;
+                if (item.opBucket !== opBucket) { item.opBucket = opBucket; item.el.style.opacity = opBucket; }
+            }
+
+            function sizeOrbitTrack() {
+                const w = stage.clientWidth * 0.86;
+                const h = stage.clientHeight * 0.78;
+                track.style.width = w + 'px';
+                track.style.height = h + 'px';
+                track.style.transform = 'translate(-50%,-50%)';
+            }
+
+            function positionLabel(item) {
+                const rx = stage.clientWidth * 0.485;
+                const ry = stage.clientHeight * 0.485;
+                const angle = item.baseAngle + rotation;
+                const x = rx * Math.cos(angle);
+                const y = ry * Math.sin(angle);
+                item.el.style.left = `calc(50% + ${x}px)`;
+                item.el.style.top = `calc(50% + ${y}px)`;
+                item.el.style.transform = 'translate(-50%,-50%)';
+            }
+
+            let lastTime = performance.now();
+            function tick(now) {
+                const dt = (now - lastTime) / 1000;
+                lastTime = now;
+                if (inView) {
+                    if (!paused && !dragging) rotation += AUTO_SPEED * dt;
+                    cards.forEach(positionCard);
+                    labels.forEach(positionLabel);
+                }
+                requestAnimationFrame(tick);
+            }
+
+            function startDrag(clientX) { dragging = true; dragStartX = clientX; dragStartRotation = rotation; stage.style.cursor = 'grabbing'; }
+            function moveDrag(clientX) { if (!dragging) return; rotation = dragStartRotation + (clientX - dragStartX) * 0.005; }
+            function endDrag() { dragging = false; stage.style.cursor = 'grab'; }
+
+            stage.style.cursor = 'grab';
+            stage.addEventListener('mousedown', e => startDrag(e.clientX));
+            window.addEventListener('mousemove', e => moveDrag(e.clientX));
+            window.addEventListener('mouseup', endDrag);
+            stage.addEventListener('touchstart', e => { paused = true; startDrag(e.touches[0].clientX); }, { passive: true });
+            stage.addEventListener('touchmove', e => moveDrag(e.touches[0].clientX), { passive: true });
+            stage.addEventListener('touchend', () => { endDrag(); paused = false; });
+
+            resetBtn?.addEventListener('click', () => { activeCat = null; buildLabels(); buildCards(); });
+            window.addEventListener('resize', () => { buildCards(); buildLabels(); sizeOrbitTrack(); });
+
+            // Pause the RAF loop entirely when the gallery is off-screen,
+            // so it never competes with the rest of the page's animations.
+            new IntersectionObserver((entries) => {
+                entries.forEach(entry => { inView = entry.isIntersecting; });
+            }, { threshold: 0.05 }).observe(stage);
+
+            buildCards();
+            buildLabels();
+            sizeOrbitTrack();
+            requestAnimationFrame(tick);
+        })();
     </script>
 </body>
 </html>
